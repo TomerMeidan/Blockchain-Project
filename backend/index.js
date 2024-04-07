@@ -1,8 +1,9 @@
+require("dotenv").config();
+
+const { ethers, Wallet } = require("ethers");
 const express = require("express");
 const ethWallet = require("./ethWallet");
 const btcWallet = require("./btcWallet");
-const { ethers, Wallet } = require("ethers");
-require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
@@ -36,6 +37,7 @@ app.get("/:network/:number_of_addresses", async (req, res) => {
   res.status(200).json({ seed: seedToSend, accounts: accounts });
 });
 
+// Root Endpoint
 app.post("/", async (req, res) => {
   console.log("body :- ", req.body);
   let { seed, number_of_addresses, network } = req.body;
@@ -64,6 +66,7 @@ app.post("/", async (req, res) => {
   res.status(200).json({ seed: seed, accounts: accounts });
 });
 
+// Endpoint for sending transaction
 app.post("/sendTransaction", async (req, res) => {
   let { fromAddress, privateKey, toAddress, value, network } = req.body;
   if (!ethers.utils.isHexString(privateKey, 32)) {
@@ -107,7 +110,28 @@ app.post("/sendTransaction", async (req, res) => {
   res.status(200).json({ address: wallet.address, balance: result });
 });
 
+// Endpoint for checking balance
+app.get("/receive/:network/:address", async (req, res) => {
+  const { network, address } = req.params;
+ 
+  try {
+     let balance;
+     if (network === "ethereum") {
+       balance = await ethWallet.checkEthereumBalance(address);
+     } else if (network === "bitcoin") {
+       balance = await btcWallet.checkBitcoinBalance(address);
+     } else {
+       return res.status(400).json({ message: "Unsupported network" });
+     }
+ 
+     res.status(200).json({ address, balance });
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ message: "An error occurred while checking the balance" });
+  }
+ });
+
 // listening on port 3000-----------------
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server is listening on port ${port}`);
 });

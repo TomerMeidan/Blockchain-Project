@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const bip39 = require("bip39");
 const ecc = require("tiny-secp256k1");
 const { BIP32Factory } = require("bip32");
@@ -6,26 +8,10 @@ const { default: axios } = require("axios");
 const bitcore = require("bitcore-lib");
 // You must wrap a tiny-secp256k1 compatible implementation
 const bip32 = BIP32Factory(ecc);
-require("dotenv").config();
+
 
 const block_cypher_api = process.env.block_cypher_api;
 
-// generate new wallet by randomly generating mnemonic ------
-const generateBtcWallet = async (index) => {
-  const mnemonic = bip39.generateMnemonic();
-  const updatedAccounts = await createBitcoinWallet(mnemonic, index);
-  for (let i = 0; i < updatedAccounts.length; i++) {
-    updatedAccounts[i].balance = 0;
-  }
-  return { mnemonic, updatedAccounts };
-};
-
-// restore the btc wallet by given mnemonic ---------
-const restoreBtcWallet = async (mnemonic, index) => {
-  const accounts = await createBitcoinWallet(mnemonic, index);
-  const updatedAccounts = await getBtcAccountsBalance(accounts);
-  return updatedAccounts;
-};
 
 //   create wallet instance by mnemonic ------
 const createBitcoinWallet = async (mnemonic, accountNo) => {
@@ -36,6 +22,29 @@ const createBitcoinWallet = async (mnemonic, accountNo) => {
   // path for testnet
   const path = "m/49'/1'/0'/0";
   return await derivedWalletsFromBitcoinNode(root, path, accountNo);
+};
+
+// restore the btc wallet by given mnemonic ---------
+const restoreBtcWallet = async (mnemonic, index) => {
+  const accounts = await createBitcoinWallet(mnemonic, index);
+  const updatedAccounts = await getBtcAccountsBalance(accounts);
+  return updatedAccounts;
+};
+
+const getBtcAccountsBalance = async (accounts) => {
+  //   let newAccounts = accounts?.accounts;
+  console.log("accounts : ", accounts);
+  console.log("accounts : ", accounts?.length);
+  for (let i = 0; i < accounts.length; i++) {
+    const address = accounts[i].address;
+    const url = `https://blockchain.info/balance?active=${address}`;
+    await axios.get(url).then((response) => {
+      console.log(response.data[address]);
+      accounts[i].balance = response.data[address].final_balance;
+    });
+  }
+  console.log("newAccounts :", accounts);
+  return accounts;
 };
 
 const derivedWalletsFromBitcoinNode = async (
@@ -60,20 +69,14 @@ const derivedWalletsFromBitcoinNode = async (
   return accounts;
 };
 
-const getBtcAccountsBalance = async (accounts) => {
-  //   let newAccounts = accounts?.accounts;
-  console.log("accounts : ", accounts);
-  console.log("accounts : ", accounts?.length);
-  for (let i = 0; i < accounts.length; i++) {
-    const address = accounts[i].address;
-    const url = `https://blockchain.info/balance?active=${address}`;
-    await axios.get(url).then((response) => {
-      console.log(response.data[address]);
-      accounts[i].balance = response.data[address].final_balance;
-    });
+// generate new wallet by randomly generating mnemonic ------
+const generateBtcWallet = async (index) => {
+  const mnemonic = bip39.generateMnemonic();
+  const updatedAccounts = await createBitcoinWallet(mnemonic, index);
+  for (let i = 0; i < updatedAccounts.length; i++) {
+    updatedAccounts[i].balance = 0;
   }
-  console.log("newAccounts :", accounts);
-  return accounts;
+  return { mnemonic, updatedAccounts };
 };
 
 const sendBtcTransaction = async (

@@ -27,12 +27,6 @@ const restoreEthereumWallet = async (mnemonic, index) => {
   return updatedAccounts;
 };
 
-// get the instanace of the wallet ------------------
-const createEthereumWallet = async (mnemonic, index) => {
-  const wallet = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  let derivationPath = "m/44'/60'/0'/0";
-  return await deriveWalletsFromEthereumNode(mnemonic, derivationPath, index);
-};
 
 // ethereum Wallet Functions ---------------
 const deriveWalletsFromEthereumNode = async (
@@ -53,19 +47,13 @@ const deriveWalletsFromEthereumNode = async (
   return accounts;
 };
 
-const getEthAccountsBalance = async (accounts) => {
-  const provider = new ethers.providers.JsonRpcProvider(ethTestNet);    // change this to ethMainNet for mainnet
-  for (let i = 0; i < accounts.length; i++) {
-    let walletPrivateKey = new Wallet(accounts[i].privateKey);
-
-    let wallet = walletPrivateKey.connect(provider);
-    let balance = Number(await wallet.getBalance());
-    balance = balance / 1e18;
-    accounts[i].balance = balance;
-  }
-  console.log("successfully executed accountsbalance");
-  return accounts;
+// get the instanace of the wallet ------------------
+const createEthereumWallet = async (mnemonic, index) => {
+  const wallet = ethers.utils.HDNode.fromMnemonic(mnemonic);
+  let derivationPath = "m/44'/60'/0'/0";
+  return await deriveWalletsFromEthereumNode(mnemonic, derivationPath, index);
 };
+
 
 const sendEthTransaction = async (PrivateKey, toAddress, value) => {
   const walletPrivateKey = new Wallet(PrivateKey);
@@ -88,6 +76,20 @@ const sendEthTransaction = async (PrivateKey, toAddress, value) => {
   console.log(receipt);
   //   return receipt.transactionHash;
   return Number(await wallet.getBalance()) / 1e18;
+};
+
+const getEthAccountsBalance = async (accounts) => {
+  const provider = new ethers.providers.JsonRpcProvider(ethTestNet);    // change this to ethMainNet for mainnet
+  for (let i = 0; i < accounts.length; i++) {
+    let walletPrivateKey = new Wallet(accounts[i].privateKey);
+
+    let wallet = walletPrivateKey.connect(provider);
+    let balance = Number(await wallet.getBalance());
+    balance = balance / 1e18;
+    accounts[i].balance = balance;
+  }
+  console.log("successfully executed accountsbalance");
+  return accounts;
 };
 
 module.exports = {
