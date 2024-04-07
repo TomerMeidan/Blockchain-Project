@@ -23,17 +23,22 @@ const Transaction = () => {
       to_address: form?.to_address,
       amount: form?.amount,
     };
-    const privateKey = accounts?.find((account) => account?.address === from_address)?.privateKey;
+    const privateKey = accounts?.find(
+      (account) => account?.address === from_address
+    )?.privateKey;
     console.log("privateKey", privateKey);
     try {
       setIsSending(true);
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/sendTransaction`, {
-        fromAddress: from_address,
-        privateKey,
-        toAddress: to_address,
-        value: amount,
-        network: form?.network,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/sendTransaction`,
+        {
+          fromAddress: from_address,
+          privateKey,
+          toAddress: to_address,
+          value: amount,
+          network: form?.network,
+        }
+      );
       console.log(response);
       const data = response?.data;
       const new_accounts = accounts.map((account) => {
@@ -43,9 +48,9 @@ const Transaction = () => {
             privateKey: account.privateKey,
             balance: data.balance,
           };
-          }
-          return account;
-        });
+        }
+        return account;
+      });
       setAccounts(new_accounts);
       toast.success("🦄 Transaction sent successfully!");
       setForm({ ...form, amount: "" });
@@ -60,13 +65,20 @@ const Transaction = () => {
   return (
     <div
       className="p-5 mt-5 rounded-md mb-3"
-      style={{ boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset" }}
+      style={{
+        boxShadow:
+          "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset",
+      }}
     >
       <div className="pt-5">
-        <h1 className="text-center font-bold text-2xl">Send {form?.network == "ethereum" ? "ETH" : "BTC"}</h1>
+        <h1 className="text-center font-bold text-2xl">
+          Send {form?.network == "ethereum" ? "ETH" : "BTC"}
+        </h1>
         <div className="my-5 flex flex-col gap-6">
           <div className="flex flex-row items-baseline justify-center">
-            <div className="w-full font-semibold text-base">From Address : </div>
+            <div className="w-full font-semibold text-base">
+              From Address :{" "}
+            </div>
             <Select
               defaultValue={accounts[0]?.address}
               className="w-full"
@@ -102,7 +114,12 @@ const Transaction = () => {
               Amount
             </label>
           </div>
-          <Button disabled={isSending} className="text-center max-w-20 bg-blue-600" type="primary" onClick={handleSendAmount}>
+          <Button
+            disabled={isSending}
+            className="text-center max-w-20 bg-blue-600"
+            type="primary"
+            onClick={handleSendAmount}
+          >
             Send
           </Button>
         </div>

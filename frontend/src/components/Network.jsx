@@ -3,7 +3,14 @@ import { Button, Divider, Flex, Radio } from "antd";
 import { useStore } from "../store/store.js";
 
 const Network = () => {
-  const { form, setForm, setStep, setAccounts, setIsTransactionPossible, setIsTransactionVisible } = useStore((state) => ({
+  const {
+    form,
+    setForm,
+    setStep,
+    setAccounts,
+    setIsTransactionPossible,
+    setIsTransactionVisible,
+  } = useStore((state) => ({
     form: state.form,
     setForm: state.setForm,
     setStep: state.setStep,

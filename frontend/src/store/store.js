@@ -16,7 +16,9 @@ export const useStore = create((set) => ({
   step: 0,
   setStep: (step) => set({ step }),
   isTransactionPossible: false,
-  setIsTransactionPossible: (isTransactionPossible) => set({ isTransactionPossible }),
+  setIsTransactionPossible: (isTransactionPossible) =>
+    set({ isTransactionPossible }),
   isTransactionVisible: false,
-  setIsTransactionVisible: (isTransactionVisible) => set({ isTransactionVisible }),
+  setIsTransactionVisible: (isTransactionVisible) =>
+    set({ isTransactionVisible }),
 }));
